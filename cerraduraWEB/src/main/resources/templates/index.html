@@ -15,11 +15,13 @@
                         <h1 class="text-center">Operaciones de conjuntos</h1>
                     </div>
                 </div>
-                
+
+               
+               <form th:action="@{/operaciones}" method="post" th:object="${operacion}">
                 <div class="row g-3 mt-3 justify-content-center">
                     <div class="col-md-6">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="cadena" placeholder="Operación">
+                            <input type="text" th:field="*{cadena}" class="form-control" id="cadena" placeholder="Operación">
                             <label for="cadena">Ingrese una cadena binaria</label>
                         </div>
                     </div>
@@ -28,7 +30,7 @@
                 <div class="row g-3 justify-content-center">
                     <div class="col-md-6">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="longitud" placeholder="Longitud">
+                            <input type="text" th:field="*{longitud}" class="form-control" id="longitud" placeholder="Longitud">
                             <label for="longitud">Ingrese la longitud máxima</label>
                         </div>
                     </div>
@@ -39,12 +41,13 @@
                         <button type="submit" class="btn btn-dark btn-lg w-100">Enviar</button>
                     </div>
                 </div>
-
-                <!-- Área de texto para visualizar el resultado -->
+               </form>
+               
                 <div class="row g-3 justify-content-center mt-4">
                     <div class="col-md-6">
                         <div class="form-floating">
-                            <textarea class="form-control" id="resultado" placeholder="Resultado" style="height: 200px;" readonly></textarea>
+                            <textarea class="form-control" id="resultado" placeholder="Resultado" style="height: 200px;" readonly
+                                      th:text="${resultado}"></textarea>
                             <label for="resultado">Resultado</label>
                         </div>
                     </div>
