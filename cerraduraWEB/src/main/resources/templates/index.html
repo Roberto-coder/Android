@@ -3,17 +3,56 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Thymeleaf with Bootstrap</title>
+        <title>Operaciones de conjuntos</title>
         <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     </head>
     <body>
-        <div class="container">
-            <h1 th:text="${message}">Hello, Thymeleaf!</h1>
-            <p>This is a simple page using Bootstrap and Thymeleaf.</p>
-            <div class="alert alert-primary" role="alert">
-                This is a Bootstrap alert!
+        <div class="main-container container d-flex justify-content-center align-items-center mt-5">
+            <div class="w-100">
+        
+                <div class="row mb-2 d-flex justify-content-center">
+                    <div class="col-auto">
+                        <h1 class="text-center">Operaciones de conjuntos</h1>
+                    </div>
+                </div>
+                
+                <div class="row g-3 mt-3 justify-content-center">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="cadena" placeholder="Operación">
+                            <label for="cadena">Ingrese una cadena binaria</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 justify-content-center">
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="longitud" placeholder="Longitud">
+                            <label for="longitud">Ingrese la longitud máxima</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 justify-content-center">
+                    <div class="col-md-6 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-dark btn-lg w-100">Enviar</button>
+                    </div>
+                </div>
+
+                <!-- Área de texto para visualizar el resultado -->
+                <div class="row g-3 justify-content-center mt-4">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <textarea class="form-control" id="resultado" placeholder="Resultado" style="height: 200px;" readonly></textarea>
+                            <label for="resultado">Resultado</label>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
+        
         <script th:src="@{/js/bootstrap.min.js}"></script>
     </body>
 </html>
