@@ -19,10 +19,10 @@ public class CerraduraController {
 }
       @PostMapping("/operaciones")
     public String operar(@ModelAttribute Operacion operacion, Model model ){
-        String cadena = operacion.getCadena();
+        
         Integer longitud = operacion.getLongitud();
 
-        String resultado = "Resultado de la cerradura de Kleene para la cadena: " + cadena + " con longitud: " + longitud;
+        String resultado = "Resultado de la cerradura de Kleene para la cadena: " + " con longitud: " + longitud;
 
         model.addAttribute("resultado", resultado);
         return "index"; 

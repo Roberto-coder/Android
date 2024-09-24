@@ -18,22 +18,29 @@
 
                
                <form th:action="@{/operaciones}" method="post" th:object="${operacion}">
-                <div class="row g-3 mt-3 justify-content-center">
-                    <div class="col-md-6">
-                        <div class="form-floating mb-3">
-                            <input type="text" th:field="*{cadena}" class="form-control" id="cadena" placeholder="Operación">
-                            <label for="cadena">Ingrese una cadena binaria</label>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="row g-3 justify-content-center">
                     <div class="col-md-6">
-                        <div class="form-floating mb-3">
+                        <div class="form-floating mb-4">
                             <input type="text" th:field="*{longitud}" class="form-control" id="longitud" placeholder="Longitud">
                             <label for="longitud">Ingrese la longitud máxima</label>
                         </div>
+                        <div class="checkboxes mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                Estrella
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                                <label class="form-check-label" for="flexCheckChecked">
+                                Cerradura
+                                </label>
+                            </div>
+                        </div>    
                     </div>
+                    
                 </div>
 
                 <div class="row g-3 justify-content-center">
