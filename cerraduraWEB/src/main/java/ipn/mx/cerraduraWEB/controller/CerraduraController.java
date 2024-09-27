@@ -1,26 +1,25 @@
 package ipn.mx.cerraduraWEB.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-@Controller
+@Controller 
 public class CerraduraController {
 
-    // Muestra la página inicial con un formulario vacío
+    
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("operacion", new Operacion());
-        return "index";  // Asegúrate de que index.html esté en la carpeta /templates
+        return "index";  
     }
 
-    // Procesa el formulario enviado desde index.html
     @PostMapping("/operaciones")
     public String operar(@ModelAttribute Operacion operacion, Model model) {
         Integer longitud = operacion.getLongitud();
@@ -30,49 +29,48 @@ public class CerraduraController {
         alfabeto.add("0");
         alfabeto.add("1");
 
-        // Genera el resultado de la operación según el tipo de cerradura
         Operacion nuevaOperacion = new Operacion(longitud);
         String resultado = nuevaOperacion.generarTabla(alfabeto, longitud, tipoOperacion);
         
         model.addAttribute("resultado", resultado);
-        model.addAttribute("operacion", operacion);  // Asegúrate de que 'operacion' esté en el modelo
+        model.addAttribute("operacion", operacion);  
 
         return "index";
     }
 
-    // Endpoint para la Cerradura de Kleene (Estrella)
-    @GetMapping("/operaciones/estrella/{limite}")
-    public String generarCerraduraKleene(@PathVariable("limite") int limite, Model model) {
+
+    @GetMapping("/api/operaciones/estrella/{limite}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generarCerraduraKleeneJson(@PathVariable("limite") int limite) {
         Set<String> alfabeto = new HashSet<>();
         alfabeto.add("0");
         alfabeto.add("1");
 
-        // Generar el resultado
-        Operacion nuevaOperacion = new Operacion(limite);
-        String resultado = nuevaOperacion.generarTabla(alfabeto, limite, "estrella");
+        Set<String> resultado = Operacion.cerraduraKleene(alfabeto, limite);
 
-        // Añadir el resultado y el objeto operación al modelo
-        model.addAttribute("resultado", resultado);
-        model.addAttribute("operacion", new Operacion());  // Siempre agregar el objeto Operacion al modelo
+        Map<String, Object> response = new HashMap<>();
+        response.put("resultado", resultado);
+        response.put("tipoOperacion", "estrella");
+        response.put("longitud", limite);
 
-        return "index";  // Asegúrate de que index.html esté correctamente definido
+        // Devuelve la respuesta JSON
+        return ResponseEntity.ok(response);
     }
 
-    // Endpoint para la Cerradura Positiva
-    @GetMapping("/operaciones/cerradura/{limite}")
-    public String generarCerraduraPositiva(@PathVariable("limite") int limite, Model model) {
+    @GetMapping("/api/operaciones/cerradura/{limite}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generarCerraduraPositivaJson(@PathVariable("limite") int limite) {
         Set<String> alfabeto = new HashSet<>();
         alfabeto.add("0");
         alfabeto.add("1");
 
-        // Generar el resultado
-        Operacion nuevaOperacion = new Operacion(limite);
-        String resultado = nuevaOperacion.generarTabla(alfabeto, limite, "cerradura");
+        Set<String> resultado = Operacion.cerraduraPositiva(alfabeto, limite);
 
-        // Añadir el resultado y el objeto operación al modelo
-        model.addAttribute("resultado", resultado);
-        model.addAttribute("operacion", new Operacion());  // Siempre agregar el objeto Operacion al modelo
+        Map<String, Object> response = new HashMap<>();
+        response.put("resultado", resultado);
+        response.put("tipoOperacion", "cerradura");
+        response.put("longitud", limite);
 
-        return "index";  // Asegúrate de que index.html esté correctamente definido
+        return ResponseEntity.ok(response);
     }
 }

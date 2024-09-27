@@ -75,7 +75,6 @@ public class Operacion {
         }
         return combinaciones;
     }
-
     public String generarTabla(Set<String> alfabeto, int limite, String tipoOperacion) {
         StringBuilder resultado = new StringBuilder();
         resultado.append("<table class='table table-bordered'><thead><tr><th>Longitud</th><th>Combinaciones</th></tr></thead><tbody>");
