@@ -43,7 +43,7 @@ public class Operacion {
 
     public static Set<String> cerraduraKleene(Set<String> alfabeto, int limite) {
         Set<String> kleene = new HashSet<>();
-        kleene.add("");  // Agregar cadena vacía para la cerradura de Kleene
+        kleene.add("λ");  
 
         for (int i = 1; i <= limite; i++) {
             kleene.addAll(generarCombinaciones(alfabeto, i));
