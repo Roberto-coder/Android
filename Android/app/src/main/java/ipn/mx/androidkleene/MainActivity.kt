@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -37,7 +39,8 @@ class MainActivity : ComponentActivity() {
 
     // Función para abrir la página del servidor en el navegador
     private fun openServerPage() {
-        val url = "http://10.0.2.2:8080"  // Cambiar  URL si es necesario
+       // val url = "http://10.0.2.2:8080"  // Cambiar  URL si es necesario
+        val url = "http://192.168.100.13:8080"//Adaptador de LAN inalámbrica Wi-Fi:
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         startActivity(intent)
     }
@@ -48,6 +51,10 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
     // Estado para almacenar el valor ingresado por el usuario y el resultado
     var inputValue by remember { mutableStateOf(TextFieldValue("")) }
     var resultText by remember { mutableStateOf("Resultado aparecerá aquí") }
+    var selectedOption by remember { mutableStateOf("cerradura") } // Estado para opción seleccionada
+
+    // Estado para el scroll
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -93,8 +100,6 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
             modifier = Modifier.padding(8.dp)
         )
 
-        // RadioButtonGroup
-        var selectedOption by remember { mutableStateOf("cerradura") }
         RadioButtonGroup { option ->
             selectedOption = option
         }
@@ -128,11 +133,20 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostrar el resultado de la solicitud
-        Text(
-            text = resultText,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        // Caja de texto con scroll para mostrar el resultado
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp) // Altura del área de texto (puedes ajustarla)
+                .verticalScroll(scrollState) // Habilitar el scroll vertical
+                .padding(8.dp)
+        ) {
+            Text(
+                text = resultText,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(8.dp) // Espaciado interno
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -140,8 +154,8 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
 }
 
 fun sendRequest(number: Int, option: String, onResult: (String) -> Unit) {
-    //val url = "http://192.168.x.x:8080/api/operaciones/$option/$number"  // URL con la opción seleccionada
-    val url = "http://10.0.2.2:8080/api/operaciones/$option/$number"
+    val url = "http://192.168.100.13:8080/api/operaciones/$option/$number"  // URL con la opción seleccionada
+    //val url = "http://10.0.2.2:8080/api/operaciones/$option/$number"
 
     val client = OkHttpClient()
     val request = Request.Builder()
