@@ -10,16 +10,39 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Controlador para manejar las operaciones de cerradura de Kleene y cerradura positiva.
+ * 
+ * Este controlador gestiona tanto las operaciones realizadas en el frontend como las respuestas en formato JSON 
+ * que pueden ser solicitadas a través de la API.
+ */
 @Controller 
 public class CerraduraController {
 
-    
+    /**
+     * Maneja las solicitudes GET al endpoint raíz ("/").
+     * 
+     * Este método carga la página principal y pasa un objeto de Operacion vacío al modelo.
+     *
+     * @param model El modelo utilizado para pasar datos a la vista.
+     * @return El nombre de la vista "index".
+     */
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("operacion", new Operacion());
         return "index";  
     }
 
+    /**
+     * Maneja las solicitudes POST al endpoint "/operaciones".
+     * 
+     * Este método realiza las operaciones basadas en el tipo de operación y la longitud
+     * que el usuario define, luego devuelve el resultado a la vista.
+     * 
+     * @param operacion Objeto que contiene los detalles de la operación (tipo y longitud).
+     * @param model El modelo utilizado para pasar los resultados a la vista.
+     * @return El nombre de la vista "index" con los resultados.
+     */
     @PostMapping("/operaciones")
     public String operar(@ModelAttribute Operacion operacion, Model model) {
         Integer longitud = operacion.getLongitud();
@@ -38,7 +61,14 @@ public class CerraduraController {
         return "index";
     }
 
-
+    /**
+     * Genera la cerradura de Kleene para un alfabeto dado y un límite, y devuelve los resultados en formato JSON.
+     * 
+     * Este método maneja solicitudes GET al endpoint "/api/operaciones/estrella/{limite}".
+     * 
+     * @param limite El límite de longitud para la operación de cerradura de Kleene.
+     * @return Un ResponseEntity que contiene un mapa con el resultado de la operación, tipo de operación, y longitud.
+     */
     @GetMapping("/api/operaciones/estrella/{limite}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> generarCerraduraKleeneJson(@PathVariable("limite") int limite) {
@@ -57,6 +87,14 @@ public class CerraduraController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Genera la cerradura positiva para un alfabeto dado y un límite, y devuelve los resultados en formato JSON.
+     * 
+     * Este método maneja solicitudes GET al endpoint "/api/operaciones/cerradura/{limite}".
+     * 
+     * @param limite El límite de longitud para la operación de cerradura positiva.
+     * @return Un ResponseEntity que contiene un mapa con el resultado de la operación, tipo de operación, y longitud.
+     */
     @GetMapping("/api/operaciones/cerradura/{limite}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> generarCerraduraPositivaJson(@PathVariable("limite") int limite) {
