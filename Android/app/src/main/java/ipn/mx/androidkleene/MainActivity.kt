@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
     // Función para abrir la página del servidor en el navegador
     private fun openServerPage() {
-        val url = "http://10.0.2.2:8080"  // Cambiar  URL si es necesario
+        val url = "http://127.0.0.1:8080"  // Cambiar  URL si es necesario
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         startActivity(intent)
     }
@@ -141,7 +141,7 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
 
 fun sendRequest(number: Int, option: String, onResult: (String) -> Unit) {
     //val url = "http://192.168.x.x:8080/api/operaciones/$option/$number"  // URL con la opción seleccionada
-    val url = "http://10.0.2.2:8080/api/operaciones/$option/$number"
+    val url = "http://127.0.0.1:8080/api/operaciones/$option/$number"
 
     val client = OkHttpClient()
     val request = Request.Builder()
