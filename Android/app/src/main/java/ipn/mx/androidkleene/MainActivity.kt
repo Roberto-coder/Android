@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,6 +21,10 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 
+/**
+ * MainActivity es la actividad principal de la aplicación que contiene
+ * la interfaz de usuario y la lógica para abrir una página web en el navegador y cerrar la aplicación.
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +41,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Función para abrir la página del servidor en el navegador
+    /**
+     * Abre la página del servidor en el navegador web predeterminado.
+     */
     private fun openServerPage() {
         val url = "http://127.0.0.1:8080"  // Cambiar  URL si es necesario
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -43,11 +51,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * RequestScreen es una función composable que representa la pantalla principal de la aplicación.
+ * Incluye campos para ingresar un número, seleccionar una operación y mostrar el resultado.
+ *
+ * @param onOpenServer Función a ejecutar cuando se presiona el botón para abrir el servidor.
+ * @param onCloseApp Función a ejecutar cuando se presiona el botón para cerrar la aplicación.
+ */
 @Composable
 fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
-    // Estado para almacenar el valor ingresado por el usuario y el resultado
     var inputValue by remember { mutableStateOf(TextFieldValue("")) }
     var resultText by remember { mutableStateOf("Resultado aparecerá aquí") }
+    var selectedOption by remember { mutableStateOf("cerradura") }  // Opción seleccionada: cerradura o estrella
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -55,51 +71,51 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-
+        // Botones para abrir el servidor o cerrar la aplicación
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly // Opcional: Espaciado entre los botones
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             // Botón para abrir navegador
             Button(
-                onClick = onOpenServer ,
-                modifier = Modifier.weight(1f), // Ocupa el 50% del espacio disponible
+                onClick = onOpenServer,
+                modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                containerColor = Color.DarkGray, // Color de fondo
-                contentColor = Color.White  // Color del texto
+                    containerColor = Color.DarkGray,
+                    contentColor = Color.White
                 )
             ) {
                 Text("Abrir Navegador")
             }
 
-            Spacer(modifier = Modifier.width(16.dp)) // Espacio entre los botones
+            Spacer(modifier = Modifier.width(16.dp))  // Espacio entre los botones
 
             // Botón para cerrar la aplicación
             Button(
                 onClick = { onCloseApp() },
-                modifier = Modifier.weight(1f), // Ocupa el 50% del espacio disponible
+                modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red, // Color de fondo
-                contentColor = Color.Black  // Color del texto
+                    containerColor = Color.Red,
+                    contentColor = Color.Black
                 )
             ) {
                 Text("Cerrar App")
             }
         }
 
+        // Texto y opciones para seleccionar la operación
         Text(
             text = "Seleccionar operación",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(8.dp)
         )
 
-        // RadioButtonGroup
-        var selectedOption by remember { mutableStateOf("cerradura") }
+        // Componente RadioButton para seleccionar la operación
         RadioButtonGroup { option ->
             selectedOption = option
         }
 
-        // Campo de entrada de número
+        // Campo de entrada para ingresar un número
         OutlinedTextField(
             value = inputValue,
             onValueChange = { inputValue = it },
@@ -128,17 +144,32 @@ fun RequestScreen(onOpenServer: () -> Unit, onCloseApp: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostrar el resultado de la solicitud
-        Text(
-            text = resultText,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        // Área para mostrar el resultado de la solicitud
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .verticalScroll(scrollState)
+                .padding(8.dp)
+        ) {
+            Text(
+                text = resultText,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
-
     }
 }
 
+/**
+ * Envía una solicitud HTTP GET al servidor con la opción seleccionada y un número ingresado.
+ *
+ * @param number El número ingresado por el usuario.
+ * @param option La operación seleccionada ("cerradura" o "estrella").
+ * @param onResult Función para manejar la respuesta de la solicitud.
+ */
 fun sendRequest(number: Int, option: String, onResult: (String) -> Unit) {
     //val url = "http://192.168.x.x:8080/api/operaciones/$option/$number"  // URL con la opción seleccionada
     val url = "http://127.0.0.1:8080/api/operaciones/$option/$number"
@@ -158,16 +189,13 @@ fun sendRequest(number: Int, option: String, onResult: (String) -> Unit) {
                 val responseData = response.body?.string()
                 if (responseData != null) {
                     try {
-                        // Parsear el string de respuesta como JSON
                         val jsonObject = JSONObject(responseData)
-
-                        // Crear un StringBuilder para acumular los elementos del JSON
                         val resultBuilder = StringBuilder()
 
-                        // Iterar sobre las claves y obtener los valores
+                        // Iterar sobre las claves del JSON y obtener los valores
                         jsonObject.keys().forEach { key ->
                             val value = jsonObject.get(key)
-                            resultBuilder.append("$key: $value\n") // Añadir cada clave-valor al resultado
+                            resultBuilder.append("$key: $value\n")
                         }
 
                         // Devolver el resultado formateado
@@ -182,10 +210,15 @@ fun sendRequest(number: Int, option: String, onResult: (String) -> Unit) {
                 onResult("Error: ${response.code}")
             }
         }
-
     })
 }
 
+/**
+ * RadioButtonGroup es un componente que permite seleccionar entre las opciones
+ * "cerradura" y "estrella".
+ *
+ * @param onSelectionChanged Función que se ejecuta cuando cambia la selección.
+ */
 @Composable
 fun RadioButtonGroup(onSelectionChanged: (String) -> Unit) {
     var selectedOption by remember { mutableStateOf("cerradura") }
@@ -217,6 +250,9 @@ fun RadioButtonGroup(onSelectionChanged: (String) -> Unit) {
     }
 }
 
+/**
+ * Vista previa para mostrar cómo se verá la aplicación en el editor de Android Studio.
+ */
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
