@@ -10,16 +10,16 @@ class PlaceShipUseCase(private val gameRepository: GameRepository) {
         val gameData = gameRepository.loadGame()
 
         // Verificar si el barco cabe en la posición
-        if (!isValidPlacement(gameData.board, x, y, shipLength, isHorizontal)) {
+        if (!isValidPlacement(gameData.myBoard, x, y, shipLength, isHorizontal)) {
             return "No hay suficiente espacio para colocar el barco en esa posición"
         }
 
         // Colocar el barco en el tablero
         for (i in 0 until shipLength) {
             if (isHorizontal) {
-                gameData.board[x][y + i] = 2  // 2 para marcar el barco
+                gameData.myBoard[x][y + i] = 2  // 2 para marcar el barco
             } else {
-                gameData.board[x + i][y] = 2
+                gameData.myBoard[x + i][y] = 2
             }
         }
 

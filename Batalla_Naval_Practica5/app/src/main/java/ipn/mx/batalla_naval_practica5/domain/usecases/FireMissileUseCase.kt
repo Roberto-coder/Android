@@ -10,23 +10,23 @@ class FireMissileUseCase(private val gameRepository: GameRepository) {
         val gameData = gameRepository.loadGame()
 
         // Verificar si la posición está dentro de los límites del tablero
-        if (x !in gameData.board.indices || y !in gameData.board[x].indices) {
+        if (x !in gameData.myShotsBoard.indices || y !in gameData.myShotsBoard[x].indices) {
             return "Posición fuera de los límites del tablero"
         }
 
         // Verificar si el misil ya ha sido disparado en esa posición
-        if (gameData.board[x][y] == 1) {
+        if (gameData.myShotsBoard[x][y] == 1) {
             return "Ya se ha disparado en esta posición"
         }
 
         // Realizar el disparo: cambiar el estado del tablero
-        gameData.board[x][y] = 1  // Se marca la posición con un 1 para indicar que fue impactada
+        gameData.myShotsBoard[x][y] = 1  // Se marca la posición con un 1 para indicar que fue impactada
 
         // Actualizar el estado del juego en el repositorio
         gameRepository.saveAsJson(gameData)
 
         // Devolver resultado del disparo
-        return if (gameData.board[x][y] == 1) {
+        return if (gameData.myBoard[x][y] == 2) {
             "¡Impacto! La posición ($x, $y) ha sido alcanzada"
         } else {
             "El disparo falló"

@@ -1,33 +1,64 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mis Barcos"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="8dp" />
 
     <GridLayout
-        android:id="@+id/placeShipsGrid"
+        android:id="@+id/myBoardGrid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:columnCount="10"
-        android:rowCount="10" />
+        android:rowCount="10"
+        android:background="@drawable/grid_background">
+    </GridLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mis Misiles lanzados"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:padding="8dp" />
 
     <GridLayout
-        android:id="@+id/fireMissilesGrid"
+        android:id="@+id/myShotsGrid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:columnCount="10"
-        android:rowCount="10" />
+        android:rowCount="10"
+        android:background="@drawable/grid_background">
+    </GridLayout>
 
-    <Button
-        android:id="@+id/resetButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reset" />
+        android:orientation="horizontal"
+        android:gravity="center">
 
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Save Game" />
+        <Button
+            android:id="@+id/resetButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save Game"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
 </LinearLayout>

@@ -8,21 +8,26 @@ import ipn.mx.batalla_naval_practica5.data.repository.GameRepository
 class GameViewModel(private val context: Context) : ViewModel() {
     private val gameRepository = GameRepository(context)
 
-    fun placeShip(row: Int, col: Int, shipLength: Int, isHorizontal: Boolean): String {
+    fun placeShip(row: Int, col: Int, length: Int, isHorizontal: Boolean): String {
         val gameData = gameRepository.loadGame()
 
-        if (!isValidPlacement(gameData.board, row, col, shipLength, isHorizontal)) {
+        if (gameData.shipsToPlace.isEmpty()) {
+            return "Ya has colocado todos los barcos"
+        }
+
+        if (!isValidPlacement(gameData.myBoard, row, col, length, isHorizontal)) {
             return "No hay suficiente espacio para colocar el barco en esa posición"
         }
 
-        for (i in 0 until shipLength) {
+        for (i in 0 until length) {
             if (isHorizontal) {
-                gameData.board[row][col + i] = 2  // 2 para marcar el barco
+                gameData.myBoard[row][col + i] = 2  // 2 para marcar el barco
             } else {
-                gameData.board[row + i][col] = 2
+                gameData.myBoard[row + i][col] = 2
             }
         }
 
+        gameData.shipsToPlace = gameData.shipsToPlace.drop(1)
         gameRepository.saveAsJson(gameData)
         return "¡Barco colocado con éxito en la posición ($row, $col)"
     }
@@ -30,15 +35,18 @@ class GameViewModel(private val context: Context) : ViewModel() {
     fun fireMissile(row: Int, col: Int): String {
         val gameData = gameRepository.loadGame()
 
-        if (gameData.board[row][col] == 2) {
-            gameData.board[row][col] = 1  // 1 para marcar un impacto
-            gameRepository.saveAsJson(gameData)
-            return "¡Impacto en la posición ($row, $col)!"
-        } else {
-            gameData.board[row][col] = 1  // 1 para marcar un disparo fallido
-            gameRepository.saveAsJson(gameData)
-            return "No hay ningún barco en la posición ($row, $col)"
+        if (!gameData.isTurn) {
+            return "No es tu turno"
         }
+
+        if (gameData.myShotsBoard[row][col] != 0) {
+            return "Ya has disparado en esta posición"
+        }
+
+        gameData.myShotsBoard[row][col] = 1  // 1 para marcar un disparo
+        gameData.isTurn = false
+        gameRepository.saveAsJson(gameData)
+        return "Disparo realizado en la posición ($row, $col)"
     }
 
     fun loadGame(): GameData {
@@ -52,6 +60,25 @@ class GameViewModel(private val context: Context) : ViewModel() {
 
     fun resetGame() {
         gameRepository.resetGame()
+    }
+
+    fun canPlaceMoreShips(): Boolean {
+        val gameData = gameRepository.loadGame()
+        return gameData.shipsToPlace.isNotEmpty()
+    }
+
+    fun isValidPlacement(row: Int, col: Int, length: Int, isHorizontal: Boolean): Boolean {
+        val gameData = gameRepository.loadGame()
+        return isValidPlacement(gameData.myBoard, row, col, length, isHorizontal)
+    }
+
+    fun getNextShipOrientation(): Boolean {
+        val gameData = gameRepository.loadGame()
+        return when (gameData.shipsToPlace.size) {
+            3, 2 -> false // Vertical for the first two ships
+            1 -> true // Horizontal for the last ship
+            else -> true
+        }
     }
 
     private fun isValidPlacement(board: Array<Array<Int>>, x: Int, y: Int, shipLength: Int, isHorizontal: Boolean): Boolean {
