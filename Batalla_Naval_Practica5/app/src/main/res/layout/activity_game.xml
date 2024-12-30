@@ -2,15 +2,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp"
+    android:background="#333333">
 
+    <!-- Título grande -->
+    <TextView
+        android:id="@+id/gameTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="BATALLA NAVAL"
+        android:textSize="60sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:padding="8dp" />
+
+    <!-- Nombre del jugador o subtítulo -->
+    <TextView
+        android:id="@+id/playerNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Batalla_Naval_Practica5"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:padding="4dp" />
+
+    <!-- Grid de "Mis Barcos" -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Mis Barcos"
-        android:textAlignment="center"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:padding="8dp" />
 
     <GridLayout
@@ -18,18 +45,19 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:columnCount="10"
-        android:rowCount="10"
-        android:background="@drawable/grid_background">
-    </GridLayout>
+        android:columnCount="6"
+        android:rowCount="6"
+        android:background="@drawable/grid_background" />
 
+    <!-- Grid de "Mis Misiles lanzados" -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Mis Misiles lanzados"
-        android:textAlignment="center"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
+        android:textColor="#FFFFFF"
         android:padding="8dp" />
 
     <GridLayout
@@ -37,28 +65,30 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:columnCount="10"
-        android:rowCount="10"
-        android:background="@drawable/grid_background">
-    </GridLayout>
+        android:columnCount="6"
+        android:rowCount="6"
+        android:background="@drawable/grid_background" />
 
+    <!-- Botones -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingTop="8dp">
 
         <Button
             android:id="@+id/regresarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Regresar" />
+            android:text="REGRESAR" />
 
         <Button
             android:id="@+id/readyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Listo" />
-
+            android:text="LISTO"
+            android:layout_marginStart="16dp" />
     </LinearLayout>
+
 </LinearLayout>

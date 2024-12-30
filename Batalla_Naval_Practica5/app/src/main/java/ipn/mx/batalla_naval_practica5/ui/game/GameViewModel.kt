@@ -6,12 +6,15 @@ import androidx.lifecycle.ViewModel
 import ipn.mx.batalla_naval_practica5.data.models.GameData
 import ipn.mx.batalla_naval_practica5.data.models.Ship
 import ipn.mx.batalla_naval_practica5.data.repository.GameRepository
-import org.json.JSONArray
 import org.json.JSONObject
 
 class GameViewModel(private val context: Context, private val webSocketClient: GameWebSocketClient) : ViewModel() {
 
     private val gameRepository = GameRepository(context)
+
+    companion object {
+        const val BOARD_SIZE = GameActivity.BOARD_SIZE // Use the same board size as in GameActivity
+    }
 
     fun saveGame(gameData: GameData) {
         gameRepository.saveAsJson(gameData)
@@ -22,23 +25,23 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
         val jsonObject = JSONObject(gameDataJson)
 
         val myBoard = if (jsonObject.has("myBoard")) {
-            Array(10) { row ->
-                Array(10) { col ->
+            Array(BOARD_SIZE) { row ->
+                Array(BOARD_SIZE) { col ->
                     jsonObject.getJSONArray("myBoard").getJSONArray(row).getInt(col)
                 }
             }
         } else {
-            Array(10) { Array(10) { 0 } }
+            Array(BOARD_SIZE) { Array(BOARD_SIZE) { 0 } }
         }
 
         val myShotsBoard = if (jsonObject.has("myShotsBoard")) {
-            Array(10) { row ->
-                Array(10) { col ->
+            Array(BOARD_SIZE) { row ->
+                Array(BOARD_SIZE) { col ->
                     jsonObject.getJSONArray("myShotsBoard").getJSONArray(row).getInt(col)
                 }
             }
         } else {
-            Array(10) { Array(10) { 0 } }
+            Array(BOARD_SIZE) { Array(BOARD_SIZE) { 0 } }
         }
 
         val shipsToPlace = if (jsonObject.has("shipsToPlace")) {
@@ -87,12 +90,12 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
     fun isValidPlacement(row: Int, col: Int, length: Int, isHorizontal: Boolean): Boolean {
         val gameData = loadGame()
         if (isHorizontal) {
-            if (col + length > 10) return false
+            if (col + length > BOARD_SIZE) return false
             for (i in 0 until length) {
                 if (gameData.myBoard[row][col + i] != 0) return false
             }
         } else {
-            if (row + length > 10) return false
+            if (row + length > BOARD_SIZE) return false
             for (i in 0 until length) {
                 if (gameData.myBoard[row + i][col] != 0) return false
             }

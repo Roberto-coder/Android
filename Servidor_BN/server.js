@@ -32,8 +32,8 @@ wss.on('connection', (ws) => {
 
 function createInitialGameData() {
   return {
-    myBoard: Array(10).fill().map(() => Array(10).fill(0)),
-    myShotsBoard: Array(10).fill().map(() => Array(10).fill(0)),
+    myBoard: Array(6).fill().map(() => Array(6).fill(0)),
+    myShotsBoard: Array(6).fill().map(() => Array(6).fill(0)),
     shipsToPlace: [
       { length: 2, isHorizontal: false },
       { length: 3, isHorizontal: false },
@@ -67,6 +67,9 @@ function handleClientMessage(ws, data) {
     case 'END_TURN':
       handleEndTurn(ws, data.playerName, data.gameData);
       break;
+    case 'FIRE_MISSILE':
+      handleFireMissile(ws, data.row, data.col);
+      break;
     default:
       ws.send(JSON.stringify({ action: 'ERROR', message: 'Unknown action' }));
   }
@@ -97,11 +100,30 @@ function handleEndTurn(ws, playerName, gameData) {
   }
 }
 
+function handleFireMissile(ws, row, col) {
+  const playerIndex = gameState.players.findIndex(player => player.ws === ws);
+  const opponentIndex = (playerIndex + 1) % 2;
+  const opponentBoard = gameState.gameData.myBoard;
+
+  if (opponentBoard[row][col] === 2) {
+    gameState.gameData.myShotsBoard[row][col] = 1;
+    opponentBoard[row][col] = 1;
+    ws.send(JSON.stringify({ action: 'HIT', message: `Hit at (${row}, ${col})` }));
+  } else {
+    gameState.gameData.myShotsBoard[row][col] = 0;
+    ws.send(JSON.stringify({ action: 'MISS', message: `Miss at (${row}, ${col})` }));
+  }
+
+  saveGameData(gameState.gameData, gameState.players[playerIndex].playerName);
+  broadcastGameState();
+  checkGameOver();
+}
+
 function handleDisconnect(ws) {
   const player = gameState.players.find(player => player.ws === ws);
   gameState.players = gameState.players.filter(player => player.ws !== ws);
   if (gameState.players.length < 2) {
-    resetGame(player.playerName);
+    resetGame(player ? player.playerName : 'defaultPlayer');
   }
 }
 

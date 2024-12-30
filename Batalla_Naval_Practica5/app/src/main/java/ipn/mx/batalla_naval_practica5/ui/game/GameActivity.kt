@@ -1,22 +1,21 @@
 package ipn.mx.batalla_naval_practica5.ui.game
 
 import GameWebSocketClient
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import ipn.mx.batalla_naval_practica5.R
 import ipn.mx.batalla_naval_practica5.data.models.GameData
-import ipn.mx.batalla_naval_practica5.data.models.Ship
+import ipn.mx.batalla_naval_practica5.ui.main.MainActivity
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.net.URI
 
 class GameActivity : AppCompatActivity() {
@@ -27,12 +26,20 @@ class GameActivity : AppCompatActivity() {
     private lateinit var webSocketClient: GameWebSocketClient
     private lateinit var playerName: String
     private lateinit var readyButton: Button
+    private lateinit var regresarButton: Button
+
+    companion object {
+        const val BOARD_SIZE = 6 // Define the board size here
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
         playerName = intent.getStringExtra("PLAYER_NAME") ?: "Unknown"
+
+        val playerNameTextView: TextView = findViewById(R.id.playerNameTextView)
+        playerNameTextView.text = playerName
 
         val serverUri = URI("ws://10.0.2.2:3000")
         webSocketClient = GameWebSocketClient(this, serverUri)
@@ -42,12 +49,19 @@ class GameActivity : AppCompatActivity() {
         myBoardGrid = findViewById(R.id.myBoardGrid)
         myShotsGrid = findViewById(R.id.myShotsGrid)
         readyButton = findViewById(R.id.readyButton)
+        regresarButton = findViewById(R.id.regresarButton)
 
         createGrid(myBoardGrid, true)
         createGrid(myShotsGrid, false)
 
         readyButton.setOnClickListener {
             onReadyButtonClicked()
+        }
+
+        regresarButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
         drawBoardState()
@@ -106,7 +120,6 @@ class GameActivity : AppCompatActivity() {
         return jsonObject.toString()
     }
 
-
     public fun handleGameState(state: String) {
         when (state) {
             "coloca tus barcos" -> enableShipPlacement()
@@ -147,8 +160,10 @@ class GameActivity : AppCompatActivity() {
 
     private fun createGrid(grid: GridLayout, isShipPlacement: Boolean) {
         grid.removeAllViews()
-        for (row in 0 until 10) {
-            for (col in 0 until 10) {
+        grid.rowCount = BOARD_SIZE
+        grid.columnCount = BOARD_SIZE
+        for (row in 0 until BOARD_SIZE) {
+            for (col in 0 until BOARD_SIZE) {
                 val imageView = ImageView(this).apply {
                     tag = Pair(row, col)
                     layoutParams = GridLayout.LayoutParams().apply {
@@ -206,9 +221,9 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun drawGridState(grid: GridLayout, board: Array<Array<Int>>) {
-        for (row in 0 until 10) {
-            for (col in 0 until 10) {
-                val imageView = grid.getChildAt(row * 10 + col) as ImageView
+        for (row in 0 until BOARD_SIZE) {
+            for (col in 0 until BOARD_SIZE) {
+                val imageView = grid.getChildAt(row * BOARD_SIZE + col) as ImageView
                 when (board[row][col]) {
                     0 -> imageView.setImageResource(0) // No image
                     1 -> imageView.setImageResource(R.drawable.misil)
@@ -222,22 +237,6 @@ class GameActivity : AppCompatActivity() {
         return playerName
     }
 
-    fun saveGameState(gameState: String) {
-        val gameData = GameData(
-            myBoard = Array(10) { Array(10) { 0 } },
-            myShotsBoard = Array(10) { Array(10) { 0 } },
-            shipsToPlace = listOf(
-                Ship(length = 2, isHorizontal = false),
-                Ship(length = 3, isHorizontal = false),
-                Ship(length = 4, isHorizontal = true)
-            ),
-            currentPlayerIndex = 0,
-            isTurn = true,
-            gameState = gameState
-        )
-        gameViewModel.saveGame(gameData)
-    }
-
     private fun showToast(message: String) {
         if (!isFinishing && !isDestroyed) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -246,5 +245,14 @@ class GameActivity : AppCompatActivity() {
 
     fun setWebSocketClient(newClient: GameWebSocketClient) {
         webSocketClient = newClient
+    }
+
+    fun saveGameState(gameState: String) {
+        val directory = File(filesDir, "game_data")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+        val file = File(directory, "gameState.json")
+        file.writeText(gameState)
     }
 }
