@@ -5,7 +5,8 @@ data class GameData(
     val myShotsBoard: Array<Array<Int>>,
     var shipsToPlace: List<Ship>,
     val currentPlayerIndex: Int,
-    var isTurn: Boolean
+    var isTurn: Boolean,
+    var gameState: String // Nueva bandera para el estado del juego
 )
 
 data class Ship(

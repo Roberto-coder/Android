@@ -1,98 +1,128 @@
 package ipn.mx.batalla_naval_practica5.ui.game
 
+import GameWebSocketClient
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import ipn.mx.batalla_naval_practica5.data.models.GameData
+import ipn.mx.batalla_naval_practica5.data.models.Ship
 import ipn.mx.batalla_naval_practica5.data.repository.GameRepository
+import org.json.JSONArray
+import org.json.JSONObject
 
-class GameViewModel(private val context: Context) : ViewModel() {
+class GameViewModel(private val context: Context, private val webSocketClient: GameWebSocketClient) : ViewModel() {
+
     private val gameRepository = GameRepository(context)
 
-    fun placeShip(row: Int, col: Int, length: Int, isHorizontal: Boolean): String {
-        val gameData = gameRepository.loadGame()
-
-        if (gameData.shipsToPlace.isEmpty()) {
-            return "Ya has colocado todos los barcos"
-        }
-
-        if (!isValidPlacement(gameData.myBoard, row, col, length, isHorizontal)) {
-            return "No hay suficiente espacio para colocar el barco en esa posición"
-        }
-
-        for (i in 0 until length) {
-            if (isHorizontal) {
-                gameData.myBoard[row][col + i] = 2  // 2 para marcar el barco
-            } else {
-                gameData.myBoard[row + i][col] = 2
-            }
-        }
-
-        gameData.shipsToPlace = gameData.shipsToPlace.drop(1)
+    fun saveGame(gameData: GameData) {
         gameRepository.saveAsJson(gameData)
-        return "¡Barco colocado con éxito en la posición ($row, $col)"
-    }
-
-    fun fireMissile(row: Int, col: Int): String {
-        val gameData = gameRepository.loadGame()
-
-        if (!gameData.isTurn) {
-            return "No es tu turno"
-        }
-
-        if (gameData.myShotsBoard[row][col] != 0) {
-            return "Ya has disparado en esta posición"
-        }
-
-        gameData.myShotsBoard[row][col] = 1  // 1 para marcar un disparo
-        gameData.isTurn = false
-        gameRepository.saveAsJson(gameData)
-        return "Disparo realizado en la posición ($row, $col)"
     }
 
     fun loadGame(): GameData {
-        return gameRepository.loadGame()
+        val gameDataJson = gameRepository.loadGameJson()
+        val jsonObject = JSONObject(gameDataJson)
+
+        val myBoard = if (jsonObject.has("myBoard")) {
+            Array(10) { row ->
+                Array(10) { col ->
+                    jsonObject.getJSONArray("myBoard").getJSONArray(row).getInt(col)
+                }
+            }
+        } else {
+            Array(10) { Array(10) { 0 } }
+        }
+
+        val myShotsBoard = if (jsonObject.has("myShotsBoard")) {
+            Array(10) { row ->
+                Array(10) { col ->
+                    jsonObject.getJSONArray("myShotsBoard").getJSONArray(row).getInt(col)
+                }
+            }
+        } else {
+            Array(10) { Array(10) { 0 } }
+        }
+
+        val shipsToPlace = if (jsonObject.has("shipsToPlace")) {
+            jsonObject.getJSONArray("shipsToPlace").let { shipsArray ->
+                List(shipsArray.length()) { index ->
+                    val shipObject = shipsArray.getJSONObject(index)
+                    Ship(shipObject.getInt("length"), shipObject.getBoolean("isHorizontal"))
+                }
+            }
+        } else {
+            listOf(
+                Ship(length = 2, isHorizontal = false),
+                Ship(length = 3, isHorizontal = false),
+                Ship(length = 4, isHorizontal = true)
+            )
+        }
+
+        return GameData(
+            myBoard = myBoard,
+            myShotsBoard = myShotsBoard,
+            shipsToPlace = shipsToPlace,
+            currentPlayerIndex = jsonObject.optInt("currentPlayerIndex", 0),
+            isTurn = jsonObject.optBoolean("isTurn", true),
+            gameState = jsonObject.optString("gameState", "initial")
+        )
     }
 
-    fun saveGame() {
-        val gameData = gameRepository.loadGame()
-        gameRepository.saveAsJson(gameData)
+    fun updateGameState(newState: String) {
+        val gameData = loadGame()
+        gameData.gameState = newState
+        saveGame(gameData)
     }
 
-    fun resetGame() {
-        gameRepository.resetGame()
+    fun isTurn(): Boolean {
+        return loadGame().isTurn
     }
 
     fun canPlaceMoreShips(): Boolean {
-        val gameData = gameRepository.loadGame()
-        return gameData.shipsToPlace.isNotEmpty()
-    }
-
-    fun isValidPlacement(row: Int, col: Int, length: Int, isHorizontal: Boolean): Boolean {
-        val gameData = gameRepository.loadGame()
-        return isValidPlacement(gameData.myBoard, row, col, length, isHorizontal)
+        return loadGame().shipsToPlace.isNotEmpty()
     }
 
     fun getNextShipOrientation(): Boolean {
-        val gameData = gameRepository.loadGame()
-        return when (gameData.shipsToPlace.size) {
-            3, 2 -> false // Vertical for the first two ships
-            1 -> true // Horizontal for the last ship
-            else -> true
-        }
+        return loadGame().shipsToPlace.first().isHorizontal
     }
 
-    private fun isValidPlacement(board: Array<Array<Int>>, x: Int, y: Int, shipLength: Int, isHorizontal: Boolean): Boolean {
+    fun isValidPlacement(row: Int, col: Int, length: Int, isHorizontal: Boolean): Boolean {
+        val gameData = loadGame()
         if (isHorizontal) {
-            if (y + shipLength > board[0].size) return false
-            for (i in 0 until shipLength) {
-                if (board[x][y + i] != 0) return false
+            if (col + length > 10) return false
+            for (i in 0 until length) {
+                if (gameData.myBoard[row][col + i] != 0) return false
             }
         } else {
-            if (x + shipLength > board.size) return false
-            for (i in 0 until shipLength) {
-                if (board[x + i][y] != 0) return false
+            if (row + length > 10) return false
+            for (i in 0 until length) {
+                if (gameData.myBoard[row + i][col] != 0) return false
             }
         }
         return true
+    }
+
+    fun placeShip(row: Int, col: Int, length: Int, isHorizontal: Boolean) {
+        val gameData = loadGame()
+        if (isHorizontal) {
+            for (i in 0 until length) {
+                gameData.myBoard[row][col + i] = 2
+            }
+        } else {
+            for (i in 0 until length) {
+                gameData.myBoard[row + i][col] = 2
+            }
+        }
+        gameData.shipsToPlace = gameData.shipsToPlace.drop(1)
+        saveGame(gameData)
+    }
+
+    fun fireMissile(row: Int, col: Int): String {
+        val gameData = loadGame()
+        return if (gameData.myShotsBoard[row][col] == 0) {
+            gameData.myShotsBoard[row][col] = 1
+            saveGame(gameData)
+            "Missile fired at ($row, $col)"
+        } else {
+            "Already fired at ($row, $col)"
+        }
     }
 }

@@ -49,16 +49,16 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/resetButton"
+            android:id="@+id/regresarButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reset" />
+            android:text="Regresar" />
 
         <Button
-            android:id="@+id/saveButton"
+            android:id="@+id/readyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Game"
-            android:layout_marginStart="16dp" />
+            android:text="Listo" />
+
     </LinearLayout>
 </LinearLayout>

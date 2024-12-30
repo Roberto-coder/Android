@@ -11,6 +11,7 @@ composeBom = "2024.04.01"
 gson = "2.8.8"
 simpleframework = "2.7.1"
 appcompat = "1.7.0"
+java-websocket = "1.5.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +32,7 @@ google = { group = "com.google", name = "android", version = "1.0.0" }
 google-code-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 simpleframework-xml = { group = "org.simpleframework", name = "simple-xml", version.ref = "simpleframework" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+java-websocket = { group = "org.java-websocket", name = "Java-WebSocket", version.ref = "java-websocket" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

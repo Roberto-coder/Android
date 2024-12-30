@@ -62,7 +62,7 @@ dependencies {
     implementation(libs.google.code.gson) // Para manejar JSON
     implementation(libs.simpleframework.xml)
     implementation(libs.androidx.appcompat) // Para manejar XML
-
+    implementation(libs.java.websocket)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

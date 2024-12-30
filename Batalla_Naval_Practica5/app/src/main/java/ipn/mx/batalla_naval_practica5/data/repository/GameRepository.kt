@@ -20,17 +20,7 @@ class GameRepository(private val context: Context) {
     fun loadGame(): GameData {
         val file = File(context.filesDir, fileName)
         if (!file.exists()) {
-            return GameData(
-                myBoard = Array(10) { Array(10) { 0 } },
-                myShotsBoard = Array(10) { Array(10) { 0 } },
-                shipsToPlace = listOf(
-                    Ship(length = 2, isHorizontal = false),
-                    Ship(length = 3, isHorizontal = false),
-                    Ship(length = 4, isHorizontal = true)
-                ),
-                currentPlayerIndex = 0,
-                isTurn = true
-            )
+            return createDefaultGameData()
         }
 
         val gson = Gson()
@@ -38,10 +28,27 @@ class GameRepository(private val context: Context) {
         return gson.fromJson(jsonString, GameData::class.java)
     }
 
-    fun resetGame() {
+    fun loadGameJson(): String {
         val file = File(context.filesDir, fileName)
-        if (file.exists()) {
-            file.delete()
+        return if (file.exists()) {
+            file.readText()
+        } else {
+            "{}" // Return an empty JSON object if the file does not exist
         }
+    }
+
+    private fun createDefaultGameData(): GameData {
+        return GameData(
+            myBoard = Array(10) { Array(10) { 0 } },
+            myShotsBoard = Array(10) { Array(10) { 0 } },
+            shipsToPlace = listOf(
+                Ship(length = 2, isHorizontal = false),
+                Ship(length = 3, isHorizontal = false),
+                Ship(length = 4, isHorizontal = true)
+            ),
+            currentPlayerIndex = 0,
+            isTurn = true,
+            gameState = "initial" // Provide a default value for gameState
+        )
     }
 }
