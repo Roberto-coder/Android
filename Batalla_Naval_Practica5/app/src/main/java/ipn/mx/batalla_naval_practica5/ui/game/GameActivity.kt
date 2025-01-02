@@ -3,6 +3,7 @@ package ipn.mx.batalla_naval_practica5.ui.game
 import GameWebSocketClient
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -80,21 +81,16 @@ class GameActivity : AppCompatActivity() {
     private fun onReadyButtonClicked() {
         if (webSocketClient.isOpen) {
             if (gameViewModel.isTurn()) {
-                // Ensure the directory exists
-                val directory = File(filesDir, "game_data")
-                if (!directory.exists()) {
-                    directory.mkdirs()
-                }
-
                 // Save the game state to a file
                 val gameData = gameViewModel.loadGame()
                 val gameStateJson = gameDataToJson(gameData)
-                val file = File(directory, "gameData.json")
+                val file = File(filesDir, "gameData.json")
                 file.writeText(gameStateJson)
 
                 // Send the file to the server
                 val message = mapOf("action" to "END_TURN", "playerName" to getPlayerName(), "gameData" to gameStateJson)
                 webSocketClient.send(JSONObject(message).toString())
+                Log.d("WebSocket", "Sent: $message")
                 showToast("Turn data sent")
             } else {
                 showToast("Not your turn")
@@ -104,7 +100,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun gameDataToJson(gameData: GameData): String {
+    public fun gameDataToJson(gameData: GameData): String {
         val jsonObject = JSONObject()
         jsonObject.put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
         jsonObject.put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
@@ -117,6 +113,9 @@ class GameActivity : AppCompatActivity() {
         jsonObject.put("currentPlayerIndex", gameData.currentPlayerIndex)
         jsonObject.put("isTurn", gameData.isTurn)
         jsonObject.put("gameState", gameData.gameState)
+        jsonObject.put("placeShipsFlag", gameData.placeShipsFlag)
+        jsonObject.put("shipsPlacedCount", gameData.shipsPlacedCount)
+        jsonObject.put("missilesFiredCount", gameData.missilesFiredCount)
         return jsonObject.toString()
     }
 
@@ -176,10 +175,24 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 imageView.setOnClickListener {
-                    val message = if (isShipPlacement) {
-                        placeShip(row, col, 3, gameViewModel.getNextShipOrientation())
+                    val gameData = gameViewModel.loadGame()
+                    val message = if (gameData.placeShipsFlag == 1) {
+                        if (gameData.shipsToPlace.isNotEmpty() && gameData.shipsPlacedCount < 3) {
+                            gameViewModel.placeShip(row, col, 3, gameViewModel.getNextShipOrientation())
+                            if (gameData.shipsPlacedCount >= 3) {
+                                gameData.placeShipsFlag = 0 // Disable ship placement
+                                gameViewModel.saveGame(gameData)
+                            }
+                            "Barco colocado en ($row, $col)"
+                        } else {
+                            "Ya has colocado todos los barcos"
+                        }
                     } else {
-                        gameViewModel.fireMissile(row, col)
+                        if (gameData.missilesFiredCount < 1) {
+                            gameViewModel.fireMissile(row, col)
+                        } else {
+                            "Ya has lanzado un misil"
+                        }
                     }
                     showToast(message)
                     drawBoardState()
@@ -190,31 +203,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun placeShip(row: Int, col: Int, length: Int, isHorizontal: Boolean): String {
-        if (!gameViewModel.canPlaceMoreShips()) {
-            return "Ya has colocado todos los barcos"
-        }
-
-        if (!gameViewModel.isValidPlacement(row, col, length, isHorizontal)) {
-            return "No hay suficiente espacio para colocar el barco en esa posición"
-        }
-
-        val grid = myBoardGrid
-        val imageView = ImageView(this).apply {
-            layoutParams = GridLayout.LayoutParams().apply {
-                width = 0
-                height = 0
-                columnSpec = if (isHorizontal) GridLayout.spec(col, length, 1f) else GridLayout.spec(col, 1f)
-                rowSpec = if (isHorizontal) GridLayout.spec(row, 1f) else GridLayout.spec(row, length, 1f)
-            }
-            setImageResource(if (isHorizontal) R.drawable.barcohorizontal else R.drawable.barcovertical)
-        }
-        grid.addView(imageView)
-        gameViewModel.placeShip(row, col, length, isHorizontal) // Update game state
-        return "Ship placed at ($row, $col)"
-    }
-
-    private fun drawBoardState() {
+    public fun drawBoardState() {
         val gameData = gameViewModel.loadGame()
         drawGridState(myBoardGrid, gameData.myBoard)
         drawGridState(myShotsGrid, gameData.myShotsBoard)
@@ -256,3 +245,5 @@ class GameActivity : AppCompatActivity() {
         file.writeText(gameState)
     }
 }
+
+

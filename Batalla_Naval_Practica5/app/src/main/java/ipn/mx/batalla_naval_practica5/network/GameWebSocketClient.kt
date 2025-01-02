@@ -22,35 +22,7 @@ class GameWebSocketClient(private val activity: GameActivity, serverUri: URI) : 
         Log.d("WebSocket", "Message received: $message")
         message?.let {
             val json = JSONObject(it)
-            when (json.getString("action")) {
-                "INITIAL_GAME_STATE" -> {
-                    val gameState = json.getJSONObject("gameState")
-                    activity.runOnUiThread {
-                        activity.showMessage("Initial game state received")
-                        activity.updateGameState(gameState.toString())
-                        activity.saveGameState(gameState.toString())
-                    }
-                }
-                "UPDATE_FLAGS" -> {
-                    val gameState = json.getJSONObject("gameState")
-                    val flag = json.getString("flag")
-                    activity.runOnUiThread {
-                        activity.updateGameState(gameState.toString())
-                        activity.handleGameState(flag)
-                    }
-                }
-                "ERROR" -> {
-                    val errorMessage = json.getString("message")
-                    activity.runOnUiThread {
-                        activity.showMessage(errorMessage)
-                    }
-                }
-                else -> {
-                    activity.runOnUiThread {
-                        activity.showMessage(it)
-                    }
-                }
-            }
+            handleClientMessage(json)
         }
     }
 
@@ -73,6 +45,46 @@ class GameWebSocketClient(private val activity: GameActivity, serverUri: URI) : 
             newWebSocketClient.connect()
         } catch (e: InterruptedException) {
             Log.e("WebSocket", "Reconnection interrupted: ${e.message}")
+        }
+    }
+
+    private fun handleClientMessage(json: JSONObject) {
+        when (json.getString("action")) {
+            "INITIAL_GAME_STATE" -> {
+                val gameState = json.getJSONObject("gameState")
+                activity.runOnUiThread {
+                    activity.showMessage("Initial game state received")
+                    activity.updateGameState(gameState.toString())
+                    activity.saveGameState(gameState.toString())
+                }
+            }
+            "UPDATE_FLAGS" -> {
+                val gameState = json.getJSONObject("gameState")
+                val flag = json.getString("flag")
+                activity.runOnUiThread {
+                    activity.updateGameState(gameState.toString())
+                    activity.handleGameState(flag)
+                }
+            }
+            "FIRE_MISSILE" -> {
+                val gameState = json.getJSONObject("gameData")
+                activity.runOnUiThread {
+                    activity.updateGameState(gameState.toString())
+                    activity.saveGameState(gameState.toString())
+                    activity.drawBoardState() // Redraw the board state
+                }
+            }
+            "ERROR" -> {
+                val errorMessage = json.getString("message")
+                activity.runOnUiThread {
+                    activity.showMessage(errorMessage)
+                }
+            }
+            else -> {
+                activity.runOnUiThread {
+                    activity.showMessage(json.toString())
+                }
+            }
         }
     }
 }

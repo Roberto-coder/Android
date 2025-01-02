@@ -4,6 +4,8 @@ import android.content.Context
 import com.google.gson.Gson
 import ipn.mx.batalla_naval_practica5.data.models.GameData
 import ipn.mx.batalla_naval_practica5.data.models.Ship
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 
 class GameRepository(private val context: Context) {
@@ -11,10 +13,24 @@ class GameRepository(private val context: Context) {
     private val fileName = "gameData.json"
 
     fun saveAsJson(gameData: GameData) {
-        val gson = Gson()
-        val jsonString = gson.toJson(gameData)
-        val file = File(context.filesDir, fileName)
-        file.writeText(jsonString)
+        val jsonObject = JSONObject().apply {
+            put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
+            put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
+            put("shipsToPlace", JSONArray(gameData.shipsToPlace.map { ship ->
+                JSONObject().apply {
+                    put("length", ship.length)
+                    put("isHorizontal", ship.isHorizontal)
+                }
+            }))
+            put("currentPlayerIndex", gameData.currentPlayerIndex)
+            put("isTurn", gameData.isTurn)
+            put("gameState", gameData.gameState)
+            put("placeShipsFlag", gameData.placeShipsFlag)
+            put("shipsPlacedCount", gameData.shipsPlacedCount)
+            put("missilesFiredCount", gameData.missilesFiredCount)
+        }
+        val file = File(context.filesDir, "gameData.json")
+        file.writeText(jsonObject.toString())
     }
 
     fun loadGame(): GameData {

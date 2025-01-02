@@ -11,6 +11,7 @@ import org.json.JSONObject
 class GameViewModel(private val context: Context, private val webSocketClient: GameWebSocketClient) : ViewModel() {
 
     private val gameRepository = GameRepository(context)
+    private val gameActivity = GameActivity()
 
     companion object {
         const val BOARD_SIZE = GameActivity.BOARD_SIZE // Use the same board size as in GameActivity
@@ -65,7 +66,10 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
             shipsToPlace = shipsToPlace,
             currentPlayerIndex = jsonObject.optInt("currentPlayerIndex", 0),
             isTurn = jsonObject.optBoolean("isTurn", true),
-            gameState = jsonObject.optString("gameState", "initial")
+            gameState = jsonObject.optString("gameState", "initial"),
+            placeShipsFlag = jsonObject.optInt("placeShipsFlag", 1),
+            shipsPlacedCount = jsonObject.optInt("shipsPlacedCount", 0),
+            missilesFiredCount = jsonObject.optInt("missilesFiredCount", 0)
         )
     }
 
@@ -79,28 +83,14 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
         return loadGame().isTurn
     }
 
-    fun canPlaceMoreShips(): Boolean {
-        return loadGame().shipsToPlace.isNotEmpty()
-    }
-
     fun getNextShipOrientation(): Boolean {
-        return loadGame().shipsToPlace.first().isHorizontal
-    }
-
-    fun isValidPlacement(row: Int, col: Int, length: Int, isHorizontal: Boolean): Boolean {
         val gameData = loadGame()
-        if (isHorizontal) {
-            if (col + length > BOARD_SIZE) return false
-            for (i in 0 until length) {
-                if (gameData.myBoard[row][col + i] != 0) return false
-            }
+        return if (gameData.shipsToPlace.isNotEmpty()) {
+            gameData.shipsToPlace.first().isHorizontal
         } else {
-            if (row + length > BOARD_SIZE) return false
-            for (i in 0 until length) {
-                if (gameData.myBoard[row + i][col] != 0) return false
-            }
+            // Default value or error handling
+            false
         }
-        return true
     }
 
     fun placeShip(row: Int, col: Int, length: Int, isHorizontal: Boolean) {
@@ -115,6 +105,10 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
             }
         }
         gameData.shipsToPlace = gameData.shipsToPlace.drop(1)
+        gameData.shipsPlacedCount++
+        if (gameData.shipsPlacedCount >= 3) {
+            gameData.placeShipsFlag = 0 // Disable ship placement
+        }
         saveGame(gameData)
     }
 
@@ -123,9 +117,21 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
         return if (gameData.myShotsBoard[row][col] == 0) {
             gameData.myShotsBoard[row][col] = 1
             saveGame(gameData)
+
+            // Send the FIRE_MISSILE action to the server
+            val message = JSONObject().apply {
+                put("action", "FIRE_MISSILE")
+                put("row", row)
+                put("col", col)
+                put("gameData", gameActivity.gameDataToJson(gameData)) // Include the updated game data
+            }
+            webSocketClient.send(message.toString())
+
             "Missile fired at ($row, $col)"
         } else {
             "Already fired at ($row, $col)"
         }
     }
+
+
 }

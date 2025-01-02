@@ -6,7 +6,10 @@ data class GameData(
     var shipsToPlace: List<Ship>,
     val currentPlayerIndex: Int,
     var isTurn: Boolean,
-    var gameState: String // Nueva bandera para el estado del juego
+    var gameState: String, // Nueva bandera para el estado del juego
+    var placeShipsFlag: Int = 1, // Bandera para habilitar/deshabilitar la colocación de barcos
+    var shipsPlacedCount: Int = 0, // Contador de barcos colocados
+    var missilesFiredCount: Int = 0 // Contador de misiles lanzados
 )
 
 data class Ship(

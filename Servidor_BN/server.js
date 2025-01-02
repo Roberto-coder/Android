@@ -11,9 +11,9 @@ let gameState = {
 };
 
 // Load or create initial game data
-const initialGameDataPath = path.join(__dirname, 'initialGameData.json');
-if (fs.existsSync(initialGameDataPath)) {
-  gameState.gameData = JSON.parse(fs.readFileSync(initialGameDataPath, 'utf8'));
+const gameDataPath = path.join(__dirname, 'gameData.json');
+if (fs.existsSync(gameDataPath)) {
+  gameState.gameData = JSON.parse(fs.readFileSync(gameDataPath, 'utf8'));
 } else {
   gameState.gameData = createInitialGameData();
   saveGameData(gameState.gameData, 'defaultPlayer');
@@ -41,7 +41,10 @@ function createInitialGameData() {
     ],
     currentPlayerIndex: 0,
     isTurn: true,
-    gameState: "coloca tus barcos"
+    gameState: "coloca tus barcos",
+    placeShipsFlag: 1,
+    shipsPlacedCount: 0,
+    missilesFiredCount: 0
   };
 }
 
@@ -49,13 +52,10 @@ function saveGameData(gameData, playerName) {
   const date = new Date();
   const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}_${date.getHours().toString().padStart(2, '0')}-${date.getMinutes().toString().padStart(2, '0')}-${date.getSeconds().toString().padStart(2, '0')}`;
   const playerDir = path.join(__dirname, 'public', playerName);
-  const filePath = path.join(playerDir, `${formattedDate}.json`);
-
-  // Ensure the player directory exists
   if (!fs.existsSync(playerDir)) {
     fs.mkdirSync(playerDir, { recursive: true });
   }
-
+  const filePath = path.join(playerDir, `${formattedDate}.json`);
   fs.writeFileSync(filePath, JSON.stringify(gameData));
 }
 
@@ -93,7 +93,16 @@ function handleEndTurn(ws, playerName, gameData) {
     gameState.gameData = JSON.parse(gameData);
     gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % 2;
     saveGameData(gameState.gameData, playerName);
-    broadcastGameState();
+
+    // Check if both players have placed their ships
+    if (gameState.players.every(player => player.isReady)) {
+      gameState.players.forEach(player => {
+        player.ws.send(JSON.stringify({ action: 'UPDATE_FLAGS', gameState: gameState.gameData, flag: 'envia un misil' }));
+      });
+    } else {
+      broadcastGameState();
+    }
+
     checkGameOver();
   } else {
     ws.send(JSON.stringify({ action: 'ERROR', message: 'Not your turn' }));
@@ -110,7 +119,7 @@ function handleFireMissile(ws, row, col) {
     opponentBoard[row][col] = 1;
     ws.send(JSON.stringify({ action: 'HIT', message: `Hit at (${row}, ${col})` }));
   } else {
-    gameState.gameData.myShotsBoard[row][col] = 0;
+    gameState.gameData.myShotsBoard[row][col] = 1;
     ws.send(JSON.stringify({ action: 'MISS', message: `Miss at (${row}, ${col})` }));
   }
 

@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.appcompat) // Para manejar XML
     implementation(libs.java.websocket)
 
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
