@@ -1,0 +1,7 @@
+<!-- res/values/strings.xml -->
+<resources>
+    <string name="app_name">Wearables App</string>
+    <string name="meme_image">Meme Image</string>
+    <string name="next_meme">Next</string>
+    <string name="omnitrix_mode">Omnitrix Mode</string>
+</resources>

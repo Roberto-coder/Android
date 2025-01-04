@@ -74,6 +74,12 @@ class GameWebSocketClient(private val activity: GameActivity, serverUri: URI) : 
                     activity.drawBoardState() // Redraw the board state
                 }
             }
+            "GAME_OVER" -> {
+                val message = json.getString("message")
+                activity.runOnUiThread {
+                    activity.showEndGameMessage(message)
+                }
+            }
             "ERROR" -> {
                 val errorMessage = json.getString("message")
                 activity.runOnUiThread {

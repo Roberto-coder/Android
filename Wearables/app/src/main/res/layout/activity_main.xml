@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Fondo circular simulando el Omnitrix -->
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background">
+
+        <!-- Imagen del meme -->
+        <ImageView
+            android:id="@+id/imgMeme"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:background="@drawable/meme_border"
+            android:contentDescription="@string/meme_image"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <!-- Triángulo superior -->
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_gravity="top|center_horizontal"
+            android:src="@drawable/triangle_top" />
+
+        <!-- Triángulo inferior -->
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:src="@drawable/triangle_bottom" />
+
+
+        <!-- Botón de siguiente meme -->
+        <Button
+            android:id="@+id/btnNextMeme"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginStart="150dp"
+            android:background="@drawable/button_omnitrix"
+            android:textColor="#FFFFFF"
+            android:text="@string/next_meme"
+            android:textSize="10sp" />
+    </FrameLayout>
+</RelativeLayout>

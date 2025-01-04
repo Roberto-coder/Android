@@ -150,8 +150,31 @@ function broadcastGameState() {
 }
 
 function checkGameOver() {
-  // Game over logic
-}
+    // Iterar sobre cada jugador para verificar si todos sus barcos han sido hundidos
+    const allShipsSunk = gameState.players.map((player, playerIndex) => {
+      const opponentIndex = (playerIndex + 1) % 2; // Índice del oponente
+      const opponentShotsBoard = gameState.players[opponentIndex].ws === player.ws
+        ? gameState.gameData.myShotsBoard
+        : gameState.gameData.myBoard; 
+  
+      // Verificar si todos los barcos han sido hundidos
+      return gameState.gameData.myBoard.every((row, rowIndex) =>
+        row.every((cell, colIndex) => cell !== 2 || opponentShotsBoard[rowIndex][colIndex] === 1)
+      );
+    });
+  
+    if (allShipsSunk[0]) {
+      gameState.players[0].ws.send(JSON.stringify({ action: 'GAME_OVER', message: 'You lost' }));
+      gameState.players[1].ws.send(JSON.stringify({ action: 'GAME_OVER', message: 'You won' }));
+      resetGame(gameState.players[0].playerName);
+    } else if (allShipsSunk[1]) {
+      gameState.players[1].ws.send(JSON.stringify({ action: 'GAME_OVER', message: 'You lost' }));
+      gameState.players[0].ws.send(JSON.stringify({ action: 'GAME_OVER', message: 'You won' }));
+      resetGame(gameState.players[1].playerName);
+    }  
+
+  }
+  
 
 function resetGame(playerName) {
   gameState = {

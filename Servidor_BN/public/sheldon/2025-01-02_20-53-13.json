@@ -1,0 +1,1 @@
+{"myBoard":[[2,2,0,0,0,0],[2,2,0,0,0,0],[2,2,0,0,0,0],[2,2,2,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]],"myShotsBoard":[[1,1,0,0,0,0],[1,1,0,0,0,0],[1,1,1,1,0,0],[1,1,1,1,1,0],[1,1,1,1,1,0],[1,1,1,1,1,0]],"shipsToPlace":[],"currentPlayerIndex":0,"isTurn":true,"gameState":"0","placeShipsFlag":0,"shipsPlacedCount":3,"missilesFiredCount":0}

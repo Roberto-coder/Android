@@ -101,21 +101,23 @@ class GameActivity : AppCompatActivity() {
     }
 
     public fun gameDataToJson(gameData: GameData): String {
-        val jsonObject = JSONObject()
-        jsonObject.put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
-        jsonObject.put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
-        jsonObject.put("shipsToPlace", JSONArray(gameData.shipsToPlace.map { ship ->
-            JSONObject().apply {
-                put("length", ship.length)
-                put("isHorizontal", ship.isHorizontal)
-            }
-        }))
-        jsonObject.put("currentPlayerIndex", gameData.currentPlayerIndex)
-        jsonObject.put("isTurn", gameData.isTurn)
-        jsonObject.put("gameState", gameData.gameState)
-        jsonObject.put("placeShipsFlag", gameData.placeShipsFlag)
-        jsonObject.put("shipsPlacedCount", gameData.shipsPlacedCount)
-        jsonObject.put("missilesFiredCount", gameData.missilesFiredCount)
+        val jsonObject = JSONObject().apply {
+            put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
+            put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
+            put("shipsToPlace", JSONArray(gameData.shipsToPlace.map { ship ->
+                JSONObject().apply {
+                    put("length", ship.length)
+                    put("isHorizontal", ship.isHorizontal)
+                }
+            }))
+            put("currentPlayerIndex", gameData.currentPlayerIndex)
+            put("isTurn", gameData.isTurn)
+            put("gameState", gameData.gameState) // Do not nest the gameState field
+            put("placeShipsFlag", gameData.placeShipsFlag)
+            put("shipsPlacedCount", gameData.shipsPlacedCount)
+            put("missilesFiredCount", gameData.missilesFiredCount)
+        }
+
         return jsonObject.toString()
     }
 
@@ -151,10 +153,6 @@ class GameActivity : AppCompatActivity() {
     private fun enableMissileFiring() {
         myBoardGrid.isEnabled = false
         myShotsGrid.isEnabled = true
-    }
-
-    private fun showEndGameMessage(message: String) {
-        showToast(message)
     }
 
     private fun createGrid(grid: GridLayout, isShipPlacement: Boolean) {
@@ -243,6 +241,12 @@ class GameActivity : AppCompatActivity() {
         }
         val file = File(directory, "gameState.json")
         file.writeText(gameState)
+    }
+
+    fun showEndGameMessage(message: String) {
+        showToast(message)
+        // Disable all actions to prevent further interaction
+        disableAllActions()
     }
 }
 
