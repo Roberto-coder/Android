@@ -7,6 +7,7 @@ import ipn.mx.batalla_naval_practica5.data.models.GameData
 import ipn.mx.batalla_naval_practica5.data.models.Ship
 import ipn.mx.batalla_naval_practica5.data.repository.GameRepository
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.File
 
@@ -56,8 +57,7 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
         } else {
             listOf(
                 Ship(length = 2, isHorizontal = false),
-                Ship(length = 3, isHorizontal = false),
-                Ship(length = 4, isHorizontal = true)
+                Ship(length = 3, isHorizontal = false)
             )
         }
 
@@ -67,21 +67,39 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
             shipsToPlace = shipsToPlace,
             currentPlayerIndex = jsonObject.optInt("currentPlayerIndex", 0),
             isTurn = jsonObject.optBoolean("isTurn", true),
-            gameState = jsonObject.optString("gameState", "initial"),
             placeShipsFlag = jsonObject.optInt("placeShipsFlag", 1),
             shipsPlacedCount = jsonObject.optInt("shipsPlacedCount", 0),
             missilesFiredCount = jsonObject.optInt("missilesFiredCount", 0)
         )
     }
 
-    fun updateGameState(newState: String) {
-        val gameData = loadGame()
-        gameData.gameState = newState
-        saveGame(gameData)
+    public fun gameDataToJson(gameData: GameData): String {
+        val jsonObject = JSONObject().apply {
+            put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
+            put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
+            put("shipsToPlace", JSONArray(gameData.shipsToPlace.map { ship ->
+                JSONObject().apply {
+                    put("length", ship.length)
+                    put("isHorizontal", ship.isHorizontal)
+                }
+            }))
+            put("currentPlayerIndex", gameData.currentPlayerIndex)
+            put("isTurn", gameData.isTurn)
+            put("placeShipsFlag", gameData.placeShipsFlag)
+            put("shipsPlacedCount", gameData.shipsPlacedCount)
+            put("missilesFiredCount", gameData.missilesFiredCount)
+        }
+
+        val file = File(context.filesDir, "gameData.json")
+        file.writeText(jsonObject.toString())
+
+        return jsonObject.toString()
     }
 
-    fun isTurn(): Boolean {
-        return loadGame().isTurn
+    fun updateGameState(newState: String) {
+        val gameData = loadGame()
+        // No se necesita actualizar el campo gameState
+        saveGame(gameData)
     }
 
     fun getNextShipOrientation(): Boolean {
@@ -107,7 +125,7 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
         }
         gameData.shipsToPlace = gameData.shipsToPlace.drop(1)
         gameData.shipsPlacedCount++
-        if (gameData.shipsPlacedCount >= 3) {
+        if (gameData.shipsPlacedCount >= 2) {
             gameData.placeShipsFlag = 0 // Disable ship placement
         }
         saveGame(gameData)
@@ -134,29 +152,4 @@ class GameViewModel(private val context: Context, private val webSocketClient: G
         }
     }
 
-    private fun gameDataToJson(gameData: GameData): String {
-        val jsonObject = JSONObject().apply {
-            put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
-            put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
-            put("shipsToPlace", JSONArray(gameData.shipsToPlace.map { ship ->
-                JSONObject().apply {
-                    put("length", ship.length)
-                    put("isHorizontal", ship.isHorizontal)
-                }
-            }))
-            put("currentPlayerIndex", gameData.currentPlayerIndex)
-            put("isTurn", gameData.isTurn)
-            put("gameState", gameData.gameState)
-            put("placeShipsFlag", gameData.placeShipsFlag)
-            put("shipsPlacedCount", gameData.shipsPlacedCount)
-            put("missilesFiredCount", gameData.missilesFiredCount)
-        }
-
-        // Limpiar el contenido del archivo antes de escribir
-        val file = File(context.filesDir, "gameData.json")
-        file.writeText("") // Limpiar el contenido del archivo
-        file.writeText(jsonObject.toString())
-
-        return jsonObject.toString()
-    }
 }

@@ -80,10 +80,10 @@ class GameActivity : AppCompatActivity() {
 
     private fun onReadyButtonClicked() {
         if (webSocketClient.isOpen) {
-            if (gameViewModel.isTurn()) {
+            val gameData = gameViewModel.loadGame()
+            if (gameData.isTurn) {
                 // Save the game state to a file
-                val gameData = gameViewModel.loadGame()
-                val gameStateJson = gameDataToJson(gameData)
+                val gameStateJson = gameViewModel.gameDataToJson(gameData)
                 val file = File(filesDir, "gameData.json")
                 file.writeText(gameStateJson)
 
@@ -100,27 +100,6 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    public fun gameDataToJson(gameData: GameData): String {
-        val jsonObject = JSONObject().apply {
-            put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
-            put("myShotsBoard", JSONArray(gameData.myShotsBoard.map { JSONArray(it.toList()) }))
-            put("shipsToPlace", JSONArray(gameData.shipsToPlace.map { ship ->
-                JSONObject().apply {
-                    put("length", ship.length)
-                    put("isHorizontal", ship.isHorizontal)
-                }
-            }))
-            put("currentPlayerIndex", gameData.currentPlayerIndex)
-            put("isTurn", gameData.isTurn)
-            put("gameState", gameData.gameState) // Do not nest the gameState field
-            put("placeShipsFlag", gameData.placeShipsFlag)
-            put("shipsPlacedCount", gameData.shipsPlacedCount)
-            put("missilesFiredCount", gameData.missilesFiredCount)
-        }
-
-        return jsonObject.toString()
-    }
-
     public fun handleGameState(state: String) {
         when (state) {
             "coloca tus barcos" -> enableShipPlacement()
@@ -132,7 +111,6 @@ class GameActivity : AppCompatActivity() {
 
     fun showMessage(message: String) {
         showToast(message)
-        gameViewModel.updateGameState(message)
         handleGameState(message)
     }
 

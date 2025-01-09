@@ -12,7 +12,6 @@ class GameRepository(private val context: Context) {
 
     private val fileName = "gameData.json"
 
-
     fun saveAsJson(gameData: GameData) {
         val jsonObject = JSONObject().apply {
             put("myBoard", JSONArray(gameData.myBoard.map { JSONArray(it.toList()) }))
@@ -25,13 +24,11 @@ class GameRepository(private val context: Context) {
             }))
             put("currentPlayerIndex", gameData.currentPlayerIndex)
             put("isTurn", gameData.isTurn)
-            put("gameState", 0) // Do not nest the gameState field
             put("placeShipsFlag", gameData.placeShipsFlag)
             put("shipsPlacedCount", gameData.shipsPlacedCount)
             put("missilesFiredCount", gameData.missilesFiredCount)
         }
         val file = File(context.filesDir, fileName)
-        file.writeText("") // Clear the file content
         file.writeText(jsonObject.toString())
     }
 
@@ -66,7 +63,9 @@ class GameRepository(private val context: Context) {
             ),
             currentPlayerIndex = 0,
             isTurn = true,
-            gameState = "initial" // Provide a default value for gameState
+            placeShipsFlag = 1,
+            shipsPlacedCount = 0,
+            missilesFiredCount = 0
         )
     }
 }

@@ -51,26 +51,23 @@ class GameWebSocketClient(private val activity: GameActivity, serverUri: URI) : 
     private fun handleClientMessage(json: JSONObject) {
         when (json.getString("action")) {
             "INITIAL_GAME_STATE" -> {
-                val gameState = json.getJSONObject("gameState")
                 activity.runOnUiThread {
                     activity.showMessage("Initial game state received")
-                    activity.updateGameState(gameState.toString())
-                    activity.saveGameState(gameState.toString())
+                    activity.updateGameState(json.toString())
+                    activity.saveGameState(json.toString())
                 }
             }
             "UPDATE_FLAGS" -> {
-                val gameState = json.getJSONObject("gameState")
                 val flag = json.getString("flag")
                 activity.runOnUiThread {
-                    activity.updateGameState(gameState.toString())
+                    activity.updateGameState(json.toString())
                     activity.handleGameState(flag)
                 }
             }
             "FIRE_MISSILE" -> {
-                val gameState = json.getJSONObject("gameData")
                 activity.runOnUiThread {
-                    activity.updateGameState(gameState.toString())
-                    activity.saveGameState(gameState.toString())
+                    activity.updateGameState(json.toString())
+                    activity.saveGameState(json.toString())
                     activity.drawBoardState() // Redraw the board state
                 }
             }

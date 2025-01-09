@@ -1,1 +1,27 @@
-{"myBoard":[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]],"myShotsBoard":[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]],"shipsToPlace":[{"length":2,"isHorizontal":false},{"length":3,"isHorizontal":false},{"length":4,"isHorizontal":true}],"currentPlayerIndex":0,"isTurn":true,"gameState":"coloca tus barcos","placeShipsFlag":1,"shipsPlacedCount":0,"missilesFiredCount":0}
+{
+    "myBoard": [
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0]
+    ],
+    "myShotsBoard": [
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0]
+    ],
+    "shipsToPlace": [
+      { "length": 2, "isHorizontal": false },
+      { "length": 3, "isHorizontal": false }
+    ],
+    "currentPlayerIndex": 0,
+    "isTurn": true,
+    "placeShipsFlag": 1,
+    "shipsPlacedCount": 0,
+    "missilesFiredCount": 0
+  }
