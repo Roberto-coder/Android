@@ -100,7 +100,9 @@ function handleEndTurn(ws, playerName, gameData) {
       player.ws.send(JSON.stringify({ action: 'UPDATE_FLAGS', ...gameState.players[index], flag }));
     });
 
-    checkGameOver();
+    if (gameState.players.every(player => player.missilesFiredCount > 0)) {
+      checkGameOver();
+    }
   } else {
     ws.send(JSON.stringify({ action: 'ERROR', message: 'Not your turn' }));
   }
@@ -125,9 +127,13 @@ function handleFireMissile(ws, row, col) {
     ws.send(JSON.stringify({ action: 'MISS', message: `Miss at (${row}, ${col})` }));
   }
 
+  gameState.players[playerIndex].missilesFiredCount += 1;
   saveGameData(gameState.players[playerIndex], gameState.players[playerIndex].playerName);
   broadcastGameState();
-  checkGameOver();
+
+  if (gameState.players.every(player => player.missilesFiredCount > 0)) {
+    checkGameOver();
+  }
 }
 
 function handleDisconnect(ws) {
