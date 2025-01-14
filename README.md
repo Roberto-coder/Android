@@ -37,6 +37,8 @@ FIRE_MISSILE: Enviado por el cliente para disparar un misil al tablero del opone
 UPDATE_FLAGS: Enviado por el servidor para actualizar el estado del juego para los clientes.
 GAME_OVER: Enviado por el servidor para notificar a los clientes que el juego ha terminado.
 
+![image](https://github.com/user-attachments/assets/32589198-d3ea-4c0a-abd6-c2e6b719d8b4)
+
 # Wearables App
 
 This is a Wear OS application developed using Kotlin and Java. The project is built with Gradle and uses various libraries to enhance functionality.
@@ -69,3 +71,6 @@ This is a Wear OS application developed using Kotlin and Java. The project is bu
 
 3. **Build the project**:
     - Click on `Build` > `Make Project` or press `Ctrl+F9`.
+  
+![Imagen de WhatsApp 2025-01-09 a las 21 07 06_ec55a253](https://github.com/user-attachments/assets/8712dd0c-a36d-4d0f-9600-968e0e215cb7)
+
